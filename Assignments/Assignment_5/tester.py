@@ -21,8 +21,8 @@ SAVE_LOCATION_2 = "findBusinessBasedOnLocation.txt"
 
 def loadBusinessTable(fileName, collection):
     try:
-        page = open(fileName, "r")
-        parsedJson = json.loads(page.read())
+        with open(fileName, "r") as page:
+            parsedJson = json.loads(page.read())
         for oneItem in parsedJson["BusinessRecords"]:
             collection.insert(oneItem)
             print(oneItem)
