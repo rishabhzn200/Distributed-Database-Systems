@@ -21,8 +21,7 @@ def createdb(dbname):
 
     # Check if an existing database with the same name exists
     cur.execute('SELECT COUNT(*) FROM pg_catalog.pg_database WHERE datname=\'%s\'' % (dbname,))
-    count = cur.fetchone()[0]
-    if count == 0:
+    if (count := cur.fetchone()[0]) == 0:
         cur.execute('CREATE DATABASE %s' % (dbname,))  # Create the database
     else:
         print('A database named "{0}" already exists'.format(dbname))
@@ -107,8 +106,7 @@ def checkpartitioncount(cursor, expectedpartitions, prefix):
     cursor.execute(
         "SELECT COUNT(table_name) FROM information_schema.tables WHERE table_schema = 'public' AND table_name LIKE '{0}%';".format(
             prefix))
-    count = int(cursor.fetchone()[0])
-    if count != expectedpartitions:  raise Exception(
+    if (count := int(cursor.fetchone()[0])) != expectedpartitions:  raise Exception(
         'Range partitioning not done properly. Excepted {0} table(s) but found {1} table(s)'.format(
             expectedpartitions,
             count))
@@ -159,8 +157,7 @@ def testrangerobininsert(expectedtablename, itemid, openconnection, rating, user
                                                                                           USER_ID_COLNAME,
                                                                                           MOVIE_ID_COLNAME,
                                                                                           RATING_COLNAME))
-        count = int(cur.fetchone()[0])
-        if count != 1:  return False
+        if (count := int(cur.fetchone()[0])) != 1:  return False
         return True
 
 def testEachRangePartition(ratingstablename, n, openconnection, rangepartitiontableprefix):
@@ -168,8 +165,7 @@ def testEachRangePartition(ratingstablename, n, openconnection, rangepartitionta
     cur = openconnection.cursor()
     for i in range(0, n):
         cur.execute("select count(*) from {0}{1}".format(rangepartitiontableprefix, i))
-        count = int(cur.fetchone()[0])
-        if count != countList[i]:
+        if (count := int(cur.fetchone()[0])) != countList[i]:
             raise Exception("{0}{1} has {2} of rows while the correct number should be {3}".format(
                 rangepartitiontableprefix, i, count, countList[i]
             ))
@@ -179,8 +175,7 @@ def testEachRoundrobinPartition(ratingstablename, n, openconnection, roundrobinp
     cur = openconnection.cursor()
     for i in range(0, n):
         cur.execute("select count(*) from {0}{1}".format(roundrobinpartitiontableprefix, i))
-        count = cur.fetchone()[0]
-        if count != countList[i]:
+        if (count := cur.fetchone()[0]) != countList[i]:
             raise Exception("{0}{1} has {2} of rows while the correct number should be {3}".format(
                 roundrobinpartitiontableprefix, i, count, countList[i]
             ))
@@ -223,8 +218,7 @@ def testloadratings(MyAssignment, ratingstablename, filepath, openconnection, ro
         # Test 1: Count the number of rows inserted
         with openconnection.cursor() as cur:
             cur.execute('SELECT COUNT(*) from {0}'.format(ratingstablename))
-            count = int(cur.fetchone()[0])
-            if count != rowsininpfile:
+            if (count := int(cur.fetchone()[0])) != rowsininpfile:
                 raise Exception(
                     'Expected {0} rows, but {1} rows in \'{2}\' table'.format(rowsininpfile, count, ratingstablename))
     except Exception as e:
